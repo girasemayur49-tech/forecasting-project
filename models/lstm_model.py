@@ -7,7 +7,6 @@ def train_lstm(X, y):
     model.add(LSTM(50, input_shape=(X.shape[1], 1)))
     model.add(Dense(1))
 
-    model.compile(optimizer='adam', loss='mse')
-    model.fit(X, y, epochs=5, batch_size=8)
-
+    model.compile(optimizer='adam', loss='mse')   
+    model.fit(X, y, epochs=10, batch_size=16)
     return model

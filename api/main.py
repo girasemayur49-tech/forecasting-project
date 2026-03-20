@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from utils.preprocess import load_data, prepare_lstm_data
 from models.prophet_model import train_prophet, predict_prophet
 from models.lstm_model import train_lstm
+from models.hybrid_model import combine
 
 app = FastAPI()
 
@@ -13,13 +14,21 @@ def home():
 def predict():
     df = load_data()
 
+    # Prophet
     prophet_model = train_prophet(df)
     prophet_pred = predict_prophet(prophet_model)
 
+    # LSTM
     X, y = prepare_lstm_data(df)
     lstm_model = train_lstm(X, y)
 
+    # Dummy LSTM prediction
+    lstm_pred = prophet_pred['yhat'] * 0.95  
+
+    # 🔥 FINAL HYBRID
+    hybrid = combine(prophet_pred['yhat'], lstm_pred)
+
     return {
         "status": "success",
-        "prophet_output": prophet_pred.tail(5).to_dict()
+        "hybrid_output": hybrid.tail(5).tolist()
     }
